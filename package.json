@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "run": "beefy stlplater.js:public/bundle.js --live --open --pwd=public --index=index.html"
+  },
+  "dependencies": {
+    "boxpack": "^0.1.0",
+    "domready": "^1.0.5",
+    "drop-stl-to-json": "^0.1.4",
+    "fc": "^0.2.0",
+    "onecolor": "^2.4.1",
+    "quick-hull-2d": "0.0.0"
+  },
+  "devDependencies": {
+    "beefy": "^2.1.0"
+  }
+}
