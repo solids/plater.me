@@ -22,11 +22,11 @@ Once there, start dragging .stl files on the page and it will compute if/where t
 
 Resizing the page should re-orient the boxes.
 
+pressing `control|alt|meta + s` will download a file (`stlplater.stl`) which includes all of the models you've added.
 
 
 # todo
 
- * export stl of multiple objects
  * plate size definition in real world units
  * spinner while processing stl
  * label stls
