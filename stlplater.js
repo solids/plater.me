@@ -1,5 +1,5 @@
 var one = require('onecolor');
-
+var stl = require('stl');
 function hsl(h,s,l,a) {
   var color = new one.HSL(h, s, l, a || 1);
   return color.cssa();
@@ -15,11 +15,15 @@ require('domready')(function() {
   var quickHull = require('quick-hull-2d');
   var pack = null;
 
+  var totalVerts = 0;
   function repack(canvas) {
+    totalVerts = 0;
     if (bounds.length) {
       pack = boxpack(canvas).pack(bounds);
     }
+    return pack;
   }
+
 
   var ctx = require('fc')(function(dt) {
     ctx.fillStyle = '#112';
@@ -30,19 +34,20 @@ require('domready')(function() {
     ctx.font = "12px san-serif";
     ctx.lineWidth = 2;
     if (pack) {
-      pack.forEach(function(e, i) {
+      for (var p = 0; p<pack.length; p++) {
+        var e = pack[p];
         // TODO: track which items do not fit.
         // skip items not on the platter
         if (typeof e.x === 'undefined') {
           return;
         }
 
-        var ratio = i/pack.length;
+        totalVerts += e.facets.length;
 
-        // ctx.strokeStyle = hsl(ratio, .75, .40, 1.0);
-        ctx.fillStyle = hsl(ratio, .75, .65, 1.0);
-        ctx.fillRect(e.x+1, e.y+1, e.width-2, e.height-2);
-        // ctx.strokeRect(e.x+1, e.y+1, e.width-2, e.height-2);
+        var ratio = p/pack.length;
+
+        ctx.fillStyle = hsl(ratio, .75, .65, .5);
+        ctx.fillRect(e.x, e.y, e.width, e.height);
 
         ctx.save();
           ctx.translate(e.x, e.y)
@@ -56,13 +61,9 @@ require('domready')(function() {
           ctx.fillStyle = hsl(ratio, .75, .50, 1.0);
           ctx.fill();
 
-
         ctx.restore();
-        // TODO: breaks on small objects
-        // ctx.fillStyle = '#112';
-        // var w = ctx.measureText(e.name).width;
-        // ctx.fillText(e.name, e.x + e.width/2 - w/2, e.y + e.height/2 + 4);
-      });
+      };
+      console.log('totalVerts', totalVerts);
     }
   }, false);
 
@@ -139,4 +140,35 @@ require('domready')(function() {
     });
   });
 
+
+  // add support for meta/alt + s
+  var saveAs = require('browser-filesaver');
+  var push = Array.prototype.push
+  document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 83 && (e.metaKey || e.ctrlKey || e.altKey)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      var o = {
+        description: 'stlplater',
+        facets: []
+      };
+
+      for (var i = 0; i<pack.length; i++) {
+
+        if (typeof pack[i].x !== 'undefined') {
+          for (var j = 0; j<pack[i].facets.length; j++) {
+            o.facets.push({
+              verts: pack[i].facets[j]
+            });
+          }
+        }
+      }
+
+      saveAs(
+        new Blob([stl.fromObject(o)], { type : 'text/plain;charset=utf-8' }),
+        'stlplater.stl' // TODO: allow naming of this file
+      );
+    }
+  }, true)
 });
