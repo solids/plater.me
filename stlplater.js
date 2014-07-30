@@ -32,7 +32,7 @@ require('domready')(function() {
     repack(ctx.canvas);
 
     ctx.font = "12px san-serif";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
     if (pack) {
       for (var p = 0; p<pack.length; p++) {
         var e = pack[p];
@@ -46,10 +46,13 @@ require('domready')(function() {
 
         var ratio = p/pack.length;
 
-        ctx.fillStyle = hsl(ratio, .75, .65, .5);
-        ctx.fillRect(e.x, e.y, e.width, e.height);
-
         ctx.save();
+          ctx.scale(5, 5);
+          ctx.lineWidth=.5
+
+          ctx.fillStyle = hsl(ratio, .75, .65, .5);
+          ctx.fillRect(e.x, e.y, e.width, e.height);
+
           ctx.translate(e.x, e.y)
           ctx.beginPath();
           ctx.moveTo(e.hull[0][0], e.hull[0][1]);
@@ -74,7 +77,26 @@ require('domready')(function() {
   var floor = Math.floor;
   var ceil = Math.ceil;
 
+  function normal(facet) {
+    var p1 = facet[0];
+    var p2 = facet[1];
+    var p3 = facet[2];
+
+    var u = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]];
+    var v = [p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]];
+
+    return [
+      u[1] * v[2] - u[2] - v[1],
+      -(v[2] * u[0] - v[0] * u[2]),
+      u[0] - v[1] - u[1] * v[0]
+    ]
+  }
+
   var push = Array.prototype.push;
+
+  drop.on('dropped', function() {
+    console.log('here', arguments);
+  });
 
   drop.on('stream', function(s) {
     var rect = [[0, 0], [0, 0]];
@@ -84,7 +106,8 @@ require('domready')(function() {
       facets : [],
       area : 0,
       name: 'unknown',
-      hull : []
+      hull : [],
+      rect : rect
     };
 
     var points = [];
@@ -94,8 +117,8 @@ require('domready')(function() {
         result.facets.push(d.verts);
         var verts = d.verts;
         for (var i=0; i<verts.length; i++) {
-          var x = verts[i][0] * 5;
-          var y = verts[i][1] * 5;
+          var x = verts[i][0];
+          var y = verts[i][1];
 
           rect[0][0] = min(rect[0][0], x);
           rect[0][1] = min(rect[0][1], y);
@@ -110,6 +133,7 @@ require('domready')(function() {
       }
     });
 
+    // TODO: make this configurable from the interface
     var padding = 10;
 
     s.on('end', function() {
@@ -157,16 +181,31 @@ require('domready')(function() {
       for (var i = 0; i<pack.length; i++) {
 
         if (typeof pack[i].x !== 'undefined') {
+
+          var ox = pack[i].x;
+          var oy = pack[i].y;
+
           for (var j = 0; j<pack[i].facets.length; j++) {
+            var verts = pack[i].facets[j].map(function(vert) {
+              return [
+                vert[0] - pack[i].rect[0][0] + ox,
+                vert[1] - pack[i].rect[0][1] + oy,
+                vert[2]
+              ];
+            });
+
+            // TODO: compute normal?
+
             o.facets.push({
-              verts: pack[i].facets[j]
+              normal: normal(verts),
+              verts: verts
             });
           }
         }
       }
 
       saveAs(
-        new Blob([stl.fromObject(o)], { type : 'text/plain;charset=utf-8' }),
+        new Blob([stl.fromObject(o, true)], { type : 'application/octet-stream' }),
         'stlplater.stl' // TODO: allow naming of this file
       );
     }
