@@ -81,9 +81,9 @@ require('domready')(function() {
 
           ctx.fillStyle = 'rgba(255, 255, 255, .15)';//hsl(ratio, .75, .65, .25);
           ctx.fillRect(e.x, e.y, e.width, e.height);
-          // ctx.lineWidth = 1/scale;
-          // ctx.strokeStyle = '#112';
-          // ctx.strokeRect(e.x, e.y, e.width, e.height);
+          ctx.lineWidth = 1/scale;
+          ctx.strokeStyle = '#112';
+          ctx.strokeRect(e.x, e.y, e.width, e.height);
 
           ctx.lineWidth = 1;
           ctx.translate(e.x, e.y)
@@ -116,19 +116,15 @@ require('domready')(function() {
 
   var inputs = tincture(document.body);
   inputs.width.change(function(val) {
-    if (plate[0] !== val) {
-      localStorage.plate = plate;
-      plate[0] = val;
-      ctx.dirty();
-    }
+    plate[0] = val;
+    ctx.dirty();
+    localStorage.plate = plate;
   });
 
   inputs.height.change(function(val) {
-    if (plate[1] !== val) {
-      plate[1] = val;
-      ctx.dirty();
-      localStorage.plate = plate;
-    }
+    plate[1] = val;
+    ctx.dirty();
+    localStorage.plate = plate;
   });
 
   if (localStorage.plate) {
