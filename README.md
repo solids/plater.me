@@ -27,7 +27,6 @@ pressing `control|alt|meta + s` will download a file (`stlplater.stl`) which inc
 
 # todo
 
- * plate size definition in real world units
  * spinner while processing stl
  * label stls
  * allow pan+zoom
