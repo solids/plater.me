@@ -59,10 +59,11 @@ require('domready')(function() {
       //ctx.strokeRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
     ctx.restore();
 
-    repack(ctx.canvas);
-
-    ctx.lineWidth = 1;
     if (pack) {
+      repack(ctx.canvas);
+
+      ctx.lineWidth = 1;
+
       for (var p = 0; p<pack.length; p++) {
         var e = pack[p];
         // TODO: track which items do not fit.
@@ -103,6 +104,7 @@ require('domready')(function() {
 
       ctx.stop();
     } else {
+
       ctx.fillStyle = "white";
       ctx.font = '20px lint-mccree';
       var str = 'drop .stl file(s)';
@@ -112,7 +114,7 @@ require('domready')(function() {
       var y = ctx.canvas.height/2
       ctx.fillText(str, x, y);
     }
-  });
+  }, false);
 
   var inputs = tincture(document.body);
   inputs.width.change(function(val) {

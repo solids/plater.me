@@ -4,7 +4,7 @@
   },
   "dependencies": {
     "boxpack": "^0.1.0",
-    "browser-filesaver": "tmpvar/browser-filesaver#package.json",
+    "browser-filesaver": "^1.0.0",
     "domready": "^1.0.5",
     "drop-stl-to-json": "^0.1.4",
     "fc": "^1.0.0",
