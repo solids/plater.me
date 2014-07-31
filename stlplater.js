@@ -1,5 +1,7 @@
 var one = require('onecolor');
 var stl = require('stl');
+var tincture = require('tincture');
+
 function hsl(h,s,l,a) {
   var color = new one.HSL(h, s, l, a || 1);
   return color.cssa();
@@ -9,6 +11,9 @@ function dist(x, y) {
   return Math.sqrt(x*x + y*y);
 };
 
+
+var plate = window.plate = [200, 100];
+var scale = 2;
 require('domready')(function() {
   var bounds = [];
   var boxpack = require('boxpack');
@@ -19,9 +24,11 @@ require('domready')(function() {
   function repack(canvas) {
     totalVerts = 0;
     if (bounds.length) {
-      pack = boxpack(canvas).pack(bounds);
+      pack = boxpack({
+        width: plate[0],
+        height: plate[1]
+      }).pack(bounds);
     }
-    return pack;
   }
 
 
@@ -29,16 +36,38 @@ require('domready')(function() {
     ctx.fillStyle = '#112';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
+    ctx.save()
+      ctx.translate(ctx.canvas.width/2, ctx.canvas.height/2)
+      ctx.scale(scale, scale);
+      ctx.lineWidth = 1/scale;
+      ctx.strokeStyle = "yellow";
+      ctx.beginPath()
+        ctx.moveTo(-plate[0]/2 - 1, -plate[1]/2 - 1);
+        ctx.lineTo( plate[0]/2 + 1, -plate[1]/2 - 1);
+        ctx.moveTo(-plate[0]/2 - 1,  plate[1]/2 + 1);
+        ctx.lineTo( plate[0]/2 + 1,  plate[1]/2 + 1);
+        ctx.stroke();
+
+      ctx.strokeStyle = "orange";
+      ctx.beginPath()
+        ctx.moveTo(-plate[0]/2 - 1, -plate[1]/2 - 1);
+        ctx.lineTo(-plate[0]/2 - 1,  plate[1]/2 + 1);
+        ctx.moveTo( plate[0]/2 + 1, -plate[1]/2 - 1);
+        ctx.lineTo( plate[0]/2 + 1,  plate[1]/2 + 1);
+        ctx.stroke();
+
+      //ctx.strokeRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
+    ctx.restore();
+
     repack(ctx.canvas);
 
-    ctx.font = "12px san-serif";
     ctx.lineWidth = 1;
     if (pack) {
       for (var p = 0; p<pack.length; p++) {
         var e = pack[p];
         // TODO: track which items do not fit.
         // skip items not on the platter
-        if (typeof e.x === 'undefined') {
+        if (typeof e.x === 'undefined' || !pack[p].complete) {
           return;
         }
 
@@ -47,12 +76,16 @@ require('domready')(function() {
         var ratio = p/pack.length;
 
         ctx.save();
-          ctx.scale(5, 5);
-          ctx.lineWidth=.5
+          ctx.translate(ctx.canvas.width/2 - plate[0], ctx.canvas.height/2 - plate[1])
+          ctx.scale(scale, scale);
 
-          ctx.fillStyle = hsl(ratio, .75, .65, .5);
+          ctx.fillStyle = 'rgba(255, 255, 255, .15)';//hsl(ratio, .75, .65, .25);
           ctx.fillRect(e.x, e.y, e.width, e.height);
+          // ctx.lineWidth = 1/scale;
+          // ctx.strokeStyle = '#112';
+          // ctx.strokeRect(e.x, e.y, e.width, e.height);
 
+          ctx.lineWidth = 1;
           ctx.translate(e.x, e.y)
           ctx.beginPath();
           ctx.moveTo(e.hull[0][0], e.hull[0][1]);
@@ -61,14 +94,49 @@ require('domready')(function() {
           }
           ctx.closePath();
           ctx.stroke();
-          ctx.fillStyle = hsl(ratio, .75, .50, 1.0);
+          ctx.fillStyle = hsl(ratio, 1, .63, 1.0);
           ctx.fill();
 
         ctx.restore();
       };
       console.log('totalVerts', totalVerts);
+
+      ctx.stop();
+    } else {
+      ctx.fillStyle = "white";
+      ctx.font = '20px lint-mccree';
+      var str = 'drop .stl file(s)';
+      var w = ctx.measureText(str).width;
+      var w2 = w/2;
+      var x = ctx.canvas.width/2 - w2;
+      var y = ctx.canvas.height/2
+      ctx.fillText(str, x, y);
     }
-  }, false);
+  });
+
+  var inputs = tincture(document.body);
+  inputs.width.change(function(val) {
+    if (plate[0] !== val) {
+      localStorage.plate = plate;
+      plate[0] = val;
+      ctx.dirty();
+    }
+  });
+
+  inputs.height.change(function(val) {
+    if (plate[1] !== val) {
+      plate[1] = val;
+      ctx.dirty();
+      localStorage.plate = plate;
+    }
+  });
+
+  if (localStorage.plate) {
+    plate = localStorage.plate.split(',').map(parseFloat);
+    inputs.width(plate[0]);
+    inputs.height(plate[1])
+  }
+
 
   var drop =  require('drop-stl-to-json')(ctx.canvas);
 
@@ -107,8 +175,11 @@ require('domready')(function() {
       area : 0,
       name: 'unknown',
       hull : [],
-      rect : rect
+      rect : rect,
+      complete: false
     };
+
+    bounds.push(result);
 
     var points = [];
 
@@ -142,9 +213,7 @@ require('domready')(function() {
       result.height = (ceil(rect[1][1]) - floor(rect[0][1])) + padding;
 
       result.area = result.width * result.height;
-
-      bounds.push(result);
-
+      result.complete = true;
       bounds.sort(function(a, b) {
         return b.area - a.area;
       })
@@ -159,7 +228,6 @@ require('domready')(function() {
         return a;
       });
 
-      repack(ctx.canvas);
       ctx.dirty();
     });
   });

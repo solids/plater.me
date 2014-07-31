@@ -1,16 +1,67 @@
 <html>
 <head>
   <title>stlplater</title>
+  <script type="text/javascript" src="//use.typekit.net/dus5udd.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   <script type="text/javascript" src="bundle.js"></script>
 
   <style type="text/css">
     body {
       background: #112;
-      color: #666;
+      color: #aaa;
     }
+
+    * {
+      font-family: museo-sans;
+      font-size: 1em;
+    }
+
+    input {
+      width: 2.5em;
+      border:1px solid #222;
+      background: transparent;
+      color: #aaa;
+      text-align: right;
+    }
+
+    #width, #height {
+      background: #222;
+      border: 1px 111;
+      border-radius: 2px;
+      position: absolute;
+
+      z-index: 10;
+      font-size: 1.25em;
+      border: 1px solid #445;
+      padding: .25em;
+    }
+
+    #width {
+      left: 50%;
+      top: 0;
+      margin-left: -3em;
+    }
+      #width input {
+        color: yellow;
+        border-bottom: 1px solid yellow;
+      }
+
+    #height {
+      top: 50%;
+      margin-top: -1em;
+    }
+
+      #height input {
+        color: orange;
+        border-bottom: 1px solid orange;
+      }
+
   </style>
 
 </head>
 <body>
+
+<section id="width"><input type="text" data-type="float" name="width" value="200" />mm</section>
+<section id="height"><input type="text" data-type="float" name="height" value="100" />mm</section>
 </body>
 </html>
