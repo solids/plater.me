@@ -59,8 +59,9 @@ require('domready')(function() {
       //ctx.strokeRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
     ctx.restore();
 
+    repack(ctx.canvas);
+
     if (pack) {
-      repack(ctx.canvas);
 
       ctx.lineWidth = 1;
 
@@ -157,12 +158,6 @@ require('domready')(function() {
       u[0] - v[1] - u[1] * v[0]
     ]
   }
-
-  var push = Array.prototype.push;
-
-  drop.on('dropped', function() {
-    console.log('here', arguments);
-  });
 
   drop.on('stream', function(s) {
     var rect = [[0, 0], [0, 0]];
