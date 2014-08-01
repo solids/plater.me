@@ -2,6 +2,7 @@ var one = require('onecolor');
 var stl = require('stl');
 var tincture = require('tincture');
 
+
 function hsl(h,s,l,a) {
   var color = new one.HSL(h, s, l, a || 1);
   return color.cssa();
@@ -13,21 +14,30 @@ function dist(x, y) {
 
 
 var plate = window.plate = [200, 100];
-var scale = 2;
+window.scale = 2;
+// TODO: make this configurable from the interface
+var padding = 10;
+
+
 require('domready')(function() {
   var bounds = [];
   var boxpack = require('boxpack');
   var quickHull = require('quick-hull-2d');
   var pack = null;
 
-  var totalVerts = 0;
+  var totalVerts = 0, lastPackSize = 0;
   function repack(canvas) {
     totalVerts = 0;
-    if (bounds.length) {
+
+    if (bounds.length && bounds.length !== lastPackSize) {
       pack = boxpack({
         width: plate[0],
         height: plate[1]
       }).pack(bounds);
+
+      console.log('totalVerts', totalVerts);
+
+      lastPackSize = pack.length;
     }
   }
 
@@ -78,30 +88,66 @@ require('domready')(function() {
         var ratio = p/pack.length;
 
         ctx.save();
-          ctx.translate(ctx.canvas.width/2 - plate[0], ctx.canvas.height/2 - plate[1])
+
+          ctx.translate(
+            ctx.canvas.width/2 - plate[0]/2 * scale,
+            ctx.canvas.height/2 - plate[1]/2 * scale
+          );
           ctx.scale(scale, scale);
 
-          ctx.fillStyle = 'rgba(255, 255, 255, .15)';//hsl(ratio, .75, .65, .25);
+          ctx.fillStyle = 'rgba(255, 255, 255, .15)';
           ctx.fillRect(e.x, e.y, e.width, e.height);
           ctx.lineWidth = 1/scale;
           ctx.strokeStyle = '#112';
           ctx.strokeRect(e.x, e.y, e.width, e.height);
 
           ctx.lineWidth = 1;
-          ctx.translate(e.x, e.y)
-          ctx.beginPath();
-          ctx.moveTo(e.hull[0][0], e.hull[0][1]);
-          for (var i=1; i<e.hull.length; i++) {
-            ctx.lineTo(e.hull[i][0], e.hull[i][1]);
-          }
-          ctx.closePath();
-          ctx.stroke();
-          ctx.fillStyle = hsl(ratio, 1, .63, 1.0);
-          ctx.fill();
 
+          if (!e.state.hover) {
+            ctx.translate(e.x, e.y)
+            ctx.beginPath();
+            ctx.moveTo(e.hull[0][0], e.hull[0][1]);
+            for (var i=1; i<e.hull.length; i++) {
+              ctx.lineTo(e.hull[i][0], e.hull[i][1]);
+            }
+
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fillStyle = hsl(ratio, 1, .63, 1.0);
+            ctx.fill();
+          } else {
+
+            ctx.save();
+              ctx.translate(e.x + padding/(8*scale), e.y + padding/(8 * scale))
+              ctx.beginPath();
+              ctx.moveTo(e.hull[0][0], e.hull[0][1]);
+              for (var i=1; i<e.hull.length; i++) {
+                ctx.lineTo(e.hull[i][0], e.hull[i][1]);
+              }
+
+              ctx.closePath();
+              ctx.fillStyle = 'rgba(0, 0, 0, .2)';//hsl(ratio, 1, .63, 0);
+              ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+              ctx.translate(e.x - padding/(2*scale), e.y - padding/(2*scale));
+              ctx.beginPath();
+              ctx.moveTo(e.hull[0][0], e.hull[0][1]);
+              for (var i=1; i<e.hull.length; i++) {
+                ctx.lineTo(e.hull[i][0], e.hull[i][1]);
+              }
+
+              ctx.closePath();
+              ctx.stroke();
+              ctx.fillStyle = hsl(ratio, 1, .63, 1.0);
+              ctx.fill();
+            ctx.restore();
+
+
+          }
         ctx.restore();
       };
-      console.log('totalVerts', totalVerts);
 
       ctx.stop();
     } else {
@@ -116,6 +162,16 @@ require('domready')(function() {
       ctx.fillText(str, x, y);
     }
   }, false);
+
+
+  ctx.reset = function() {
+    if (ctx.canvas.width !== window.innerWidth ||
+        ctx.canvas.height !== window.innerHeight)
+    {
+      ctx.canvas.width = window.innerWidth;
+      ctx.canvas.height = window.innerHeight;
+    }
+  };
 
   var inputs = tincture(document.body);
   inputs.width.change(function(val) {
@@ -144,21 +200,6 @@ require('domready')(function() {
   var floor = Math.floor;
   var ceil = Math.ceil;
 
-  function normal(facet) {
-    var p1 = facet[0];
-    var p2 = facet[1];
-    var p3 = facet[2];
-
-    var u = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]];
-    var v = [p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]];
-
-    return [
-      u[1] * v[2] - u[2] - v[1],
-      -(v[2] * u[0] - v[0] * u[2]),
-      u[0] - v[1] - u[1] * v[0]
-    ]
-  }
-
   drop.on('stream', function(s) {
     var rect = [[0, 0], [0, 0]];
     var result = {
@@ -169,10 +210,12 @@ require('domready')(function() {
       name: 'unknown',
       hull : [],
       rect : rect,
-      complete: false
+      state : {
+        hover : false,
+        complete: false
+      }
     };
 
-    bounds.push(result);
 
     var points = [];
 
@@ -197,8 +240,6 @@ require('domready')(function() {
       }
     });
 
-    // TODO: make this configurable from the interface
-    var padding = 10;
 
     s.on('end', function() {
 
@@ -220,6 +261,8 @@ require('domready')(function() {
 
         return a;
       });
+
+      bounds.push(result);
 
       ctx.dirty();
     });
@@ -255,10 +298,7 @@ require('domready')(function() {
               ];
             });
 
-            // TODO: compute normal?
-
             o.facets.push({
-              normal: normal(verts),
               verts: verts
             });
           }
@@ -270,5 +310,52 @@ require('domready')(function() {
         'stlplater.stl' // TODO: allow naming of this file
       );
     }
+  }, true);
+
+
+  function sign(x) {
+    if(isNaN(x)) {
+      return NaN;
+    } else if(x === 0) {
+      return x;
+    } else {
+      return (x > 0 ? 1 : -1);
+    }
+  }
+
+  function trackHover(e) {
+    var x = e.x - (ctx.canvas.width / 2)  + plate[0]/2 * scale;
+    var y = e.y - (ctx.canvas.height / 2) + plate[1]/2 * scale;
+
+    // hit tracking for objects in the scene
+    if (pack) {
+      var l = pack.length;
+      var found = false;
+      for (var i=0; i<l; i++) {
+        var p = pack[i];
+        p.state.hover = false;
+        if (x >= p.x*scale && x <= p.x*scale + p.width * scale &&
+            y >= p.y*scale && y <= p.y*scale + p.height * scale)
+        {
+          p.state.hover = true;
+        }
+      }
+
+      ctx.dirty();
+    }
+  }
+
+  document.addEventListener('mousemove', trackHover);
+
+  document.addEventListener('mousewheel', function(e) {
+    if (typeof e.wheelDeltaY !== 'undefined') {
+      scale += e. wheelDeltaY * .001
+      scale = max(scale, .25);
+
+      trackHover(e);
+
+      ctx.dirty();
+    }
+    e.preventDefault(true);
   }, true)
 });

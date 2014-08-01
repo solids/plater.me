@@ -29,6 +29,7 @@ pressing `control|alt|meta + s` will download a file (`stlplater.stl`) which inc
  * show parts that do not fit on the plater
  * allow pan+zoom
  * add webgl view to re-orient the stl (e.g. choose a different axis as the mesh bottom)
+ * move packing into web worker
 
 # license
 
