@@ -1,6 +1,8 @@
 var one = require('onecolor');
 var stl = require('stl');
 var tincture = require('tincture');
+var createWorkerStream = require('workerstream');
+var quickhullWorker = './workers/quickhull.js';
 
 
 function hsl(h,s,l,a) {
@@ -14,7 +16,8 @@ function dist(x, y) {
 
 
 var plate = window.plate = [200, 100];
-window.scale = 2;
+var scale = 2;
+var translate = [0, 0];
 // TODO: make this configurable from the interface
 var padding = 10;
 
@@ -22,7 +25,6 @@ var padding = 10;
 require('domready')(function() {
   var bounds = [];
   var boxpack = require('boxpack');
-  var quickHull = require('quick-hull-2d');
   var pack = null;
 
   var totalVerts = 0, lastPackSize = 0;
@@ -30,10 +32,16 @@ require('domready')(function() {
     totalVerts = 0;
 
     if (bounds.length && bounds.length !== lastPackSize) {
-      pack = boxpack({
+      var box = boxpack({
         width: plate[0],
         height: plate[1]
-      }).pack(bounds);
+      });
+
+      for (var i = 0; i<bounds.length; i++) {
+        console.log(boxpack.rectFit(bounds[i], box));
+      }
+
+      pack = box.pack(bounds);
 
       console.log('totalVerts', totalVerts);
 
@@ -47,7 +55,11 @@ require('domready')(function() {
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
     ctx.save()
-      ctx.translate(ctx.canvas.width/2, ctx.canvas.height/2)
+      ctx.translate(
+        ctx.canvas.width/2 + translate[0],
+        ctx.canvas.height/2 + translate[1]
+      );
+
       ctx.scale(scale, scale);
       ctx.lineWidth = 1/scale;
       ctx.strokeStyle = "yellow";
@@ -213,9 +225,11 @@ require('domready')(function() {
       state : {
         hover : false,
         complete: false
+      },
+      workers: {
+        hull: createWorkerStream(new Worker(quickhullWorker))
       }
     };
-
 
     var points = [];
 
@@ -250,21 +264,26 @@ require('domready')(function() {
       result.complete = true;
       bounds.sort(function(a, b) {
         return b.area - a.area;
-      })
-
-      result.hull = quickHull(points).map(function(a) {
-        a[0] -= rect[0][0];
-        a[1] -= rect[0][1];
-
-        a[0] += padding/2;
-        a[1] += padding/2;
-
-        return a;
       });
 
-      bounds.push(result);
+      result.workers.hull.write(points);
 
-      ctx.dirty();
+      result.workers.hull.on('data', function(hull) {
+        result.hull = hull.map(function(a) {
+          a[0] -= rect[0][0];
+          a[1] -= rect[0][1];
+
+          a[0] += padding/2;
+          a[1] += padding/2;
+
+          return a;
+        });
+
+        // force a repack
+        lastPackSize = 0;
+        bounds.push(result);
+        ctx.dirty();
+      });
     });
   });
 

@@ -2,6 +2,9 @@
   "scripts": {
     "start": "beefy stlplater.js:bundle.js --live --open --cwd=static --index=static/index.html"
   },
+  "browserify": {
+    "transform": "workerify"
+  },
   "dependencies": {
     "boxpack": "^0.1.0",
     "browser-filesaver": "^1.0.0",
@@ -11,10 +14,12 @@
     "onecolor": "^2.4.1",
     "quick-hull-2d": "0.0.0",
     "stl": "^1.0.0",
-    "tincture": "0.0.0"
+    "tincture": "0.0.0",
+    "workerstream": "^1.2.1"
   },
   "devDependencies": {
-    "beefy": "^2.1.0"
+    "beefy": "^2.1.0",
+    "workerify": "^0.3.0"
   },
   "name": "stlplater",
   "description": "drag and drop stls to be plated for 3d printing",
