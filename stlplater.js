@@ -201,7 +201,7 @@ require('domready')(function() {
   var ceil = Math.ceil;
 
   drop.on('stream', function(s) {
-    var rect = [[0, 0], [0, 0]];
+    var rect = [[Infinity, Infinity], [-Infinity, -Infinity]];
     var result = {
       width: 0,
       height: 0,
