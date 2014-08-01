@@ -14,21 +14,19 @@ npm install
 
 # use
 
-`npm run start`
-
-and navigate to `/public/index.html`
+`npm start` starts a beefy server and launches a browser
 
 Once there, start dragging .stl files on the page and it will compute if/where the stl can fit on the plate
 
-Resizing the page should re-orient the boxes.
-
-pressing `control|alt|meta + s` will download a file (`stlplater.stl`) which includes all of the models you've added.
+pressing `control|alt|meta + s` will download a file (`stlplater.stl`) which includes all of the models that fit.
 
 
 # todo
 
  * spinner while processing stl
  * label stls
+ * allow removal of stls
+ * show parts that do not fit on the plater
  * allow pan+zoom
  * add webgl view to re-orient the stl (e.g. choose a different axis as the mesh bottom)
 
