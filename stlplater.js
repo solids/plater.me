@@ -365,17 +365,6 @@ require('domready')(function() {
     }
   }, true);
 
-
-  function sign(x) {
-    if(isNaN(x)) {
-      return NaN;
-    } else if(x === 0) {
-      return x;
-    } else {
-      return (x > 0 ? 1 : -1);
-    }
-  }
-
   function trackHover(e) {
     var x = e.x - (ctx.canvas.width / 2)  + plate[0]/2 * scale;
     var y = e.y - (ctx.canvas.height / 2) + plate[1]/2 * scale;
