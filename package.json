@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "run": "beefy stlplater.js:public/bundle.js --live --open --pwd=public --index=index.html"
+    "start": "beefy stlplater.js:bundle.js --live --open --cwd=static --index=static/index.html"
   },
   "dependencies": {
     "boxpack": "^0.1.0",
