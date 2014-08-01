@@ -18,9 +18,11 @@ module.exports = function updateSpinner(el, done, total) {
     window.el = el;
     ctx.fillStyle = 'white';
 
-
     var w = 20;
-    var r = Math.floor((canvas.width - w)/total);
+
+    var r = Math.floor((canvas.width - w*2)/total);
+
+
     ctx.beginPath();
       ctx.moveTo(20, 10)
       ctx.arc(20, 20, w/2, TAU*.75, TAU*.25, true);
@@ -34,7 +36,7 @@ module.exports = function updateSpinner(el, done, total) {
     ctx.fill();
 
     var ratio = done/total;
-    if (isNaN(ratio)) {
+    if (isNaN(ratio) || !Number.isFinite(ratio)) {
       ratio = 1;
     }
 
@@ -42,7 +44,7 @@ module.exports = function updateSpinner(el, done, total) {
       ctx.moveTo(20, 10)
       ctx.arc(20, 20, w/2, TAU*.75, TAU*.25, true);
       ctx.lineTo(w + r*done, 30)
-      ctx.arc(w + r*done, 20, w/2, TAU*.25, TAU*.75, true);
+      ctx.arc(w + r * done, 20, w/2, TAU*.25, TAU*.75, true);
     ctx.closePath();
     ctx.lineWidth = 1;
     ctx.fillStyle = hsl(ratio, 1, .63, 0.5);

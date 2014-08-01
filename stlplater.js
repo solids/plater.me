@@ -306,9 +306,11 @@ require('domready')(function() {
         dropDone++;
         updateProgress(progressEl, dropDone, dropPending);
         if (dropDone >= dropPending) {
-          dropDone = 0;
-          dropPending = 0;
-          toggle([progressEl, overlayEl], false);
+          setTimeout(function() {
+            dropDone = 0;
+            dropPending = 0;
+            toggle([progressEl, overlayEl], false);
+          }, 75);
         }
 
         // force a repack
@@ -399,13 +401,15 @@ require('domready')(function() {
   document.addEventListener('mousemove', trackHover);
 
   document.addEventListener('mousewheel', function mouseWheelHandler(e) {
-    if (typeof e.wheelDeltaY !== 'undefined') {
-      scale += e. wheelDeltaY * .001
-      scale = max(scale, .25);
+    if (e.target === ctx.canvas) {
+      if (typeof e.wheelDeltaY !== 'undefined') {
+        scale += e. wheelDeltaY * .001
+        scale = max(scale, .25);
 
-      trackHover(e);
+        trackHover(e);
 
-      ctx.dirty();
+        ctx.dirty();
+      }
     }
     e.preventDefault(true);
   }, true)
