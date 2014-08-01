@@ -1,0 +1,8 @@
+var one = require('onecolor');
+
+module.exports = hsl;
+
+function hsl(h,s,l,a) {
+  var color = new one.HSL(h, s, l, a || 1);
+  return color.cssa();
+}

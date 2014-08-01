@@ -1,17 +1,34 @@
-var one = require('onecolor');
 var stl = require('stl');
 var tincture = require('tincture');
 var createWorkerStream = require('workerstream');
 var quickhullWorker = './workers/quickhull.js';
+var createDropTarget = require('drop-stl-to-json');
 
+var qel = require('./ui/qel');
+var hsl = require('./ui/hsl');
 
-function hsl(h,s,l,a) {
-  var color = new one.HSL(h, s, l, a || 1);
-  return color.cssa();
-}
+var dropDone = 0, dropPending = 0;
+
+var min = Math.min;
+var max = Math.max;
+var floor = Math.floor;
+var ceil = Math.ceil;
 
 function dist(x, y) {
   return Math.sqrt(x*x + y*y);
+};
+
+function toggle(el, b) {
+  if (el) {
+    var s = (!b) ? 'none' : 'block';
+    if (!Array.isArray(el)) {
+      el.style.display = s;
+    } else {
+      for (var i=0; i<el.length; i++) {
+        el[i].style.display = s;
+      }
+    }
+  }
 };
 
 
@@ -23,13 +40,18 @@ var padding = 10;
 
 
 require('domready')(function() {
+
+  var overlayEl = qel('#overlay');
+  var progressEl = qel('#progress');
+
+
   var bounds = [];
   var boxpack = require('boxpack');
   var pack = null;
 
-  var totalVerts = 0, lastPackSize = 0;
+  var totalTriangles = 0, lastPackSize = 0;
   function repack(canvas) {
-    totalVerts = 0;
+    totalTriangles = 0;
 
     if (bounds.length && bounds.length !== lastPackSize) {
       var box = boxpack({
@@ -38,19 +60,22 @@ require('domready')(function() {
       });
 
       for (var i = 0; i<bounds.length; i++) {
-        console.log(boxpack.rectFit(bounds[i], box));
+        totalTriangles += bounds[i].facets.length;
       }
 
       pack = box.pack(bounds);
 
-      console.log('totalVerts', totalVerts);
+      console.log('totalTriangles', totalTriangles);
 
       lastPackSize = pack.length;
     }
   }
 
 
-  var ctx = require('fc')(function(dt) {
+  var ctx = require('fc')(function render(dt) {
+
+    updateProgress(progressEl, dropDone, dropPending);
+
     ctx.fillStyle = '#112';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
@@ -77,8 +102,6 @@ require('domready')(function() {
         ctx.moveTo( plate[0]/2 + 1, -plate[1]/2 - 1);
         ctx.lineTo( plate[0]/2 + 1,  plate[1]/2 + 1);
         ctx.stroke();
-
-      //ctx.strokeRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
     ctx.restore();
 
     repack(ctx.canvas);
@@ -94,8 +117,6 @@ require('domready')(function() {
         if (typeof e.x === 'undefined' || !pack[p].complete) {
           return;
         }
-
-        totalVerts += e.facets.length;
 
         var ratio = p/pack.length;
 
@@ -138,7 +159,7 @@ require('domready')(function() {
               }
 
               ctx.closePath();
-              ctx.fillStyle = 'rgba(0, 0, 0, .2)';//hsl(ratio, 1, .63, 0);
+              ctx.fillStyle = 'rgba(0, 0, 0, .2)';
               ctx.fill();
             ctx.restore();
 
@@ -168,8 +189,7 @@ require('domready')(function() {
       ctx.font = '20px lint-mccree';
       var str = 'drop .stl file(s)';
       var w = ctx.measureText(str).width;
-      var w2 = w/2;
-      var x = ctx.canvas.width/2 - w2;
+      var x = ctx.canvas.width/2 - w/2;
       var y = ctx.canvas.height/2
       ctx.fillText(str, x, y);
     }
@@ -186,13 +206,13 @@ require('domready')(function() {
   };
 
   var inputs = tincture(document.body);
-  inputs.width.change(function(val) {
+  inputs.width.change(function widthChangeHandler(val) {
     plate[0] = val;
     ctx.dirty();
     localStorage.plate = plate;
   });
 
-  inputs.height.change(function(val) {
+  inputs.height.change(function heightChangeHandler(val) {
     plate[1] = val;
     ctx.dirty();
     localStorage.plate = plate;
@@ -205,14 +225,19 @@ require('domready')(function() {
   }
 
 
-  var drop =  require('drop-stl-to-json')(ctx.canvas);
+  var updateProgress = require('./ui/progress.js');
 
-  var min = Math.min;
-  var max = Math.max;
-  var floor = Math.floor;
-  var ceil = Math.ceil;
+  updateProgress(progressEl, 2, 10);
 
-  drop.on('stream', function(s) {
+  var drop =  createDropTarget(document);
+
+  drop.on('dropped', function dropHandler(a) {
+    dropPending+=a.length;
+    toggle([progressEl, overlayEl], true);
+    updateProgress(progressEl, dropDone, dropPending);
+  });
+
+  drop.on('stream', function dropStreamHandler(s) {
     var rect = [[Infinity, Infinity], [-Infinity, -Infinity]];
     var result = {
       width: 0,
@@ -233,7 +258,7 @@ require('domready')(function() {
 
     var points = [];
 
-    s.on('data', function(d) {
+    s.on('data', function fileData(d) {
       if (d.verts) {
         result.facets.push(d.verts);
         var verts = d.verts;
@@ -255,8 +280,7 @@ require('domready')(function() {
     });
 
 
-    s.on('end', function() {
-
+    s.on('end', function fileProcessingComplete() {
       result.width  = (ceil(rect[1][0]) - floor(rect[0][0])) + padding;
       result.height = (ceil(rect[1][1]) - floor(rect[0][1])) + padding;
 
@@ -279,6 +303,14 @@ require('domready')(function() {
           return a;
         });
 
+        dropDone++;
+        updateProgress(progressEl, dropDone, dropPending);
+        if (dropDone >= dropPending) {
+          dropDone = 0;
+          dropPending = 0;
+          toggle([progressEl, overlayEl], false);
+        }
+
         // force a repack
         lastPackSize = 0;
         bounds.push(result);
@@ -291,7 +323,7 @@ require('domready')(function() {
   // add support for meta/alt + s
   var saveAs = require('browser-filesaver');
   var push = Array.prototype.push
-  document.addEventListener('keydown', function(e) {
+  document.addEventListener('keydown', function keydownHandler(e) {
     if (e.keyCode === 83 && (e.metaKey || e.ctrlKey || e.altKey)) {
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -366,7 +398,7 @@ require('domready')(function() {
 
   document.addEventListener('mousemove', trackHover);
 
-  document.addEventListener('mousewheel', function(e) {
+  document.addEventListener('mousewheel', function mouseWheelHandler(e) {
     if (typeof e.wheelDeltaY !== 'undefined') {
       scale += e. wheelDeltaY * .001
       scale = max(scale, .25);
@@ -376,5 +408,12 @@ require('domready')(function() {
       ctx.dirty();
     }
     e.preventDefault(true);
+  }, true)
+
+  document.addEventListener('mousedown', function(e) {
+
+    if (e.target.tagName.toLowerCase() !== 'input') {
+      e.preventDefault();
+    }
   }, true)
 });
