@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "beefy stlplater.js:bundle.js --live --open --cwd=static --index=static/index.html"
+    "start": "beefy stlplater.js:bundle.js --live --open --cwd=static --index=static/index.html",
+    "build" : "browserify -e stlplater.js | uglifyjs > static/bundle.js"
   },
   "browserify": {
     "transform": "workerify"
