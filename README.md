@@ -23,7 +23,6 @@ pressing `control|alt|meta + s` will download a file (`stlplater.stl`) which inc
 
 # todo
 
- * spinner while processing stl
  * label stls
  * allow removal of stls
  * show parts that do not fit on the plater
