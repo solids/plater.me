@@ -444,7 +444,7 @@ require('domready')(function() {
 
   document.addEventListener('mousedown', function(e) {
 
-    if (e.target.tagName.toLowerCase() !== 'input') {
+    if (e.target === ctx.canvas) {
       var o = trackHover();
       if (o) {
         toggle([editorEl, overlayEl], true);
