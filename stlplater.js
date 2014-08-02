@@ -249,6 +249,7 @@ require('domready')(function() {
       width: 0,
       height: 0,
       facets : [],
+      verts: [],
       area : 0,
       name: 'unknown',
       hull : [],
@@ -266,16 +267,34 @@ require('domready')(function() {
 
     s.on('data', function fileData(d) {
       if (d.verts) {
-        result.facets.push(d.verts);
         var verts = d.verts;
+
+        result.facets.push(verts);
+
+        result.verts.push(verts[0][0]);
+        result.verts.push(verts[0][1]);
+        result.verts.push(verts[0][2]);
+
+        result.verts.push(verts[1][0]);
+        result.verts.push(verts[1][1]);
+        result.verts.push(verts[1][2]);
+
+        result.verts.push(verts[2][0]);
+        result.verts.push(verts[2][1]);
+        result.verts.push(verts[2][2]);
+
+
         for (var i=0; i<verts.length; i++) {
           var x = verts[i][0];
           var y = verts[i][1];
+          var y = verts[i][2];
 
           rect[0][0] = min(rect[0][0], x);
           rect[0][1] = min(rect[0][1], y);
+          rect[0][2] = min(rect[0][2], z);
           rect[1][0] = max(rect[1][0], x);
           rect[1][1] = max(rect[1][1], y);
+          rect[1][2] = max(rect[1][2], z);
 
           points.push([x, y]);
 
@@ -320,26 +339,7 @@ require('domready')(function() {
           }, 75);
         }
 
-        // TODO: make this reusable
-        var l = result.facets.length;
-        var buffer = new Float32Array(l*9)
-
-        for (var i=0; i<l; i++) {
-          var facet = result.facets[i];
-
-          var s = i*9;
-          buffer[s]   = facet[0][0];
-          buffer[s+1] = facet[0][1];
-          buffer[s+2] = facet[0][2];
-          buffer[s+3] = facet[1][0];
-          buffer[s+4] = facet[1][1];
-          buffer[s+5] = facet[1][2];
-          buffer[s+6] = facet[2][0];
-          buffer[s+7] = facet[2][1];
-          buffer[s+8] = facet[2][2];
-        }
-
-        result.buffer = buffer;
+        result.buffer = new Float32Array(result.verts);
 
         // force a repack
         lastPackSize = 0;
