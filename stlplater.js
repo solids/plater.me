@@ -3,7 +3,7 @@ var tincture = require('tincture');
 var createWorkerStream = require('workerstream');
 var quickhullWorker = './workers/quickhull.js';
 var createDropTarget = require('drop-stl-to-json');
-
+var createEditor = require('./ui/editor.js');
 var qel = require('./ui/qel');
 var hsl = require('./ui/hsl');
 
@@ -44,6 +44,8 @@ require('domready')(function() {
   var overlayEl = qel('#overlay');
   var progressEl = qel('#progress');
 
+  // setup webgl view for later
+  var editor = createEditor(qel('#editor .wrapper3'));
 
   var bounds = [];
   var boxpack = require('boxpack');

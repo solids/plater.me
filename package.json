@@ -1,10 +1,13 @@
 {
   "scripts": {
     "start": "beefy stlplater.js:bundle.js --live --open --cwd=static --index=static/index.html",
-    "build" : "browserify -e stlplater.js | uglifyjs > static/bundle.js"
+    "build": "browserify -e stlplater.js | uglifyjs > static/bundle.js"
   },
   "browserify": {
-    "transform": "workerify"
+    "transform": [
+      "workerify",
+      "glslify"
+    ]
   },
   "dependencies": {
     "boxpack": "^0.1.0",
@@ -12,6 +15,10 @@
     "domready": "^1.0.5",
     "drop-stl-to-json": "^0.1.5",
     "fc": "^1.0.0",
+    "gl-buffer": "^2.0.8",
+    "gl-now": "^1.3.1",
+    "gl-shader-core": "^2.1.1",
+    "glslify": "^1.6.0",
     "onecolor": "^2.4.1",
     "quick-hull-2d": "0.0.0",
     "stl": "^1.0.0",
@@ -20,6 +27,7 @@
   },
   "devDependencies": {
     "beefy": "^2.1.0",
+    "glslify": "^1.6.0",
     "workerify": "^0.3.0"
   },
   "name": "stlplater",
