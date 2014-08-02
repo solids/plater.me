@@ -320,6 +320,27 @@ require('domready')(function() {
           }, 75);
         }
 
+        // TODO: make this reusable
+        var l = result.facets.length;
+        var buffer = new Float32Array(l*9)
+
+        for (var i=0; i<l; i++) {
+          var facet = result.facets[i];
+
+          var s = i*9;
+          buffer[s]   = facet[0][0];
+          buffer[s+1] = facet[0][1];
+          buffer[s+2] = facet[0][2];
+          buffer[s+3] = facet[1][0];
+          buffer[s+4] = facet[1][1];
+          buffer[s+5] = facet[1][2];
+          buffer[s+6] = facet[2][0];
+          buffer[s+7] = facet[2][1];
+          buffer[s+8] = facet[2][2];
+        }
+
+        result.buffer = buffer;
+
         // force a repack
         lastPackSize = 0;
         bounds.push(result);
@@ -426,6 +447,7 @@ require('domready')(function() {
       var o = trackHover();
       if (o) {
         toggle([editorEl, overlayEl], true);
+        editor.display(o);
       }
 
       if (e.target === overlayEl) {
