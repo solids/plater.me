@@ -14,6 +14,9 @@ var max = Math.max;
 var floor = Math.floor;
 var ceil = Math.ceil;
 
+var mouse = [0, 0];
+
+
 function dist(x, y) {
   return Math.sqrt(x*x + y*y);
 };
@@ -311,6 +314,7 @@ require('domready')(function() {
           setTimeout(function() {
             dropDone = 0;
             dropPending = 0;
+            trackHover();
             toggle([progressEl, overlayEl], false);
           }, 75);
         }
@@ -368,8 +372,15 @@ require('domready')(function() {
   }, true);
 
   function trackHover(e) {
-    var x = e.x - (ctx.canvas.width / 2)  + plate[0]/2 * scale;
-    var y = e.y - (ctx.canvas.height / 2) + plate[1]/2 * scale;
+
+    if (e) {
+      mouse[0] = e.x;
+      mouse[1] = e.y;
+    }
+
+    var x = mouse[0] - (ctx.canvas.width / 2)  + plate[0]/2 * scale;
+    var y = mouse[1] - (ctx.canvas.height / 2) + plate[1]/2 * scale;
+
 
     // hit tracking for objects in the scene
     if (pack) {
