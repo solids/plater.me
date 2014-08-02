@@ -316,7 +316,7 @@ require('domready')(function() {
       result.workers.hull.write(points);
 
       result.workers.hull.on('data', function(hull) {
-        console.log(JSON.stringify(hull, null, ' '));
+
         result.hull = hull.map(function(a) {
           a[0] -= rect[0][0];
           a[1] -= rect[0][1];
