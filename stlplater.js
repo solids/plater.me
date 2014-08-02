@@ -250,6 +250,7 @@ require('domready')(function() {
       height: 0,
       facets : [],
       verts: [],
+      normals: [],
       area : 0,
       name: 'unknown',
       hull : [],
@@ -269,25 +270,22 @@ require('domready')(function() {
       if (d.verts) {
         var verts = d.verts;
 
+        if (!d.normal) {
+          d.normal = stl.facetNormal(d);
+        }
+
+
+        result.normals.push(d.normal);
         result.facets.push(verts);
-
-        result.verts.push(verts[0][0]);
-        result.verts.push(verts[0][1]);
-        result.verts.push(verts[0][2]);
-
-        result.verts.push(verts[1][0]);
-        result.verts.push(verts[1][1]);
-        result.verts.push(verts[1][2]);
-
-        result.verts.push(verts[2][0]);
-        result.verts.push(verts[2][1]);
-        result.verts.push(verts[2][2]);
-
 
         for (var i=0; i<verts.length; i++) {
           var x = verts[i][0];
           var y = verts[i][1];
           var z = verts[i][2];
+
+          result.verts.push(x);
+          result.verts.push(y);
+          result.verts.push(z);
 
           rect[0][0] = min(rect[0][0], x);
           rect[0][1] = min(rect[0][1], y);
@@ -318,6 +316,7 @@ require('domready')(function() {
       result.workers.hull.write(points);
 
       result.workers.hull.on('data', function(hull) {
+        console.log(JSON.stringify(hull, null, ' '));
         result.hull = hull.map(function(a) {
           a[0] -= rect[0][0];
           a[1] -= rect[0][1];
@@ -400,29 +399,31 @@ require('domready')(function() {
       mouse[1] = e.y;
     }
 
-    var x = mouse[0] - (ctx.canvas.width / 2)  + plate[0]/2 * scale;
-    var y = mouse[1] - (ctx.canvas.height / 2) + plate[1]/2 * scale;
+    if (!e || e.target === ctx.canvas) {
+      var x = mouse[0] - (ctx.canvas.width / 2)  + plate[0]/2 * scale;
+      var y = mouse[1] - (ctx.canvas.height / 2) + plate[1]/2 * scale;
 
-    var hovering;
-    // hit tracking for objects in the scene
-    if (pack) {
-      var l = pack.length;
-      var found = false;
-      for (var i=0; i<l; i++) {
-        var p = pack[i];
-        p.state.hover = false;
-        if (x >= p.x*scale && x <= p.x*scale + p.width * scale &&
-            y >= p.y*scale && y <= p.y*scale + p.height * scale)
-        {
-          p.state.hover = true;
-          hovering = p;
+      var hovering;
+      // hit tracking for objects in the scene
+      if (pack) {
+        var l = pack.length;
+        var found = false;
+        for (var i=0; i<l; i++) {
+          var p = pack[i];
+          p.state.hover = false;
+          if (x >= p.x*scale && x <= p.x*scale + p.width * scale &&
+              y >= p.y*scale && y <= p.y*scale + p.height * scale)
+          {
+            p.state.hover = true;
+            hovering = p;
+          }
         }
+
+        ctx.dirty();
       }
 
-      ctx.dirty();
+      return hovering;
     }
-
-    return hovering;
   }
 
   document.addEventListener('mousemove', trackHover);

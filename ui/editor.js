@@ -4,6 +4,8 @@ var glslify = require('glslify');
 var createBuffer = require('gl-buffer');
 var glm = require('gl-matrix');
 var attachCamera = require('game-shell-orbit-camera');
+var eye = require('eye-vector');
+
 
 var createShader = glslify({
   vertex: './shaders/editor.vert',
@@ -17,15 +19,27 @@ function Editor(el) {
     return new Editor(el);
   }
   this.el = el;
+
+  this.eyevec = new Float32Array(3)
 };
 
 Editor.prototype.shell = null;
 Editor.prototype.el = null;
 
+Editor.prototype.setupBuffers = function(gl, obj) {
+  if (this.shell.gl.buffer) {
+    this.shell.gl.buffer.dispose();
+    this.shell.gl.normals.dispose();
+  }
+
+  this.shell.gl.buffer = createBuffer(this.shell.gl, obj.buffer);
+  this.shell.gl.normals = createBuffer(this.shell.gl, obj.normals);
+}
+
 Editor.prototype.display = function(object, color) {
   var buffer = object.buffer;
   var that = this;
-  this.facetCount = object.facets.length;
+  that.object = object;
 
   if (!this.shell) {
     var shell = this.shell = glnow({
@@ -39,15 +53,18 @@ Editor.prototype.display = function(object, color) {
     shell.on("gl-init", function() {
       var gl = shell.gl
 
-      gl.buffer = createBuffer(gl, buffer);
-
+      that.setupBuffers(shell.gl, object);
       gl.program = createShader(gl);
       gl.program.bind();
       gl.program.attributes.position.location = 0;
+      gl.program.attributes.aNormal.location = 1
     });
 
     shell.on("gl-render", function(t) {
       var gl = shell.gl
+
+      gl.enable(gl.DEPTH_TEST)
+      gl.enable(gl.CULL_FACE)
 
       var shader = gl.program;
       var scratch = glm.mat4.create()
@@ -67,9 +84,13 @@ Editor.prototype.display = function(object, color) {
         1000.0
       );
 
-      shader.uniforms.view = camera.view(scratch)
+      eye(camera.view(), that.eyevec);
 
-      gl.drawArrays(gl.TRIANGLES, 0, that.facetCount);
+      shader.uniforms.view = camera.view()
+
+      shader.uniforms.eye = that.eyevec;
+
+      gl.drawArrays(gl.TRIANGLES, 0, that.object.verts.length/3);
 
       gl.flush();
     });
@@ -78,8 +99,7 @@ Editor.prototype.display = function(object, color) {
       throw new Error("WebGL not supported :(")
     });
   } else {
-    this.shell.gl.buffer.dispose();
-    this.shell.gl.buffer = createBuffer(this.shell.gl, buffer);
+    this.setupBuffers(this.shell.gl, object);
   }
 };
 
