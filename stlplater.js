@@ -287,7 +287,7 @@ require('domready')(function() {
         for (var i=0; i<verts.length; i++) {
           var x = verts[i][0];
           var y = verts[i][1];
-          var y = verts[i][2];
+          var z = verts[i][2];
 
           rect[0][0] = min(rect[0][0], x);
           rect[0][1] = min(rect[0][1], y);
