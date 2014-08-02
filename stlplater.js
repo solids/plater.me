@@ -24,7 +24,7 @@ function dist(x, y) {
 function toggle(el, b) {
   if (el) {
     var s = (!b) ? 'none' : 'block';
-    if (!Array.isArray(el)) {
+    if (typeof el.length === 'undefined') {
       el.style.display = s;
     } else {
       for (var i=0; i<el.length; i++) {
@@ -46,6 +46,7 @@ require('domready')(function() {
 
   var overlayEl = qel('#overlay');
   var progressEl = qel('#progress');
+  var editorEl = qel('#editor');
 
   // setup webgl view for later
   var editor = createEditor(qel('#editor .wrapper3'));
@@ -381,7 +382,7 @@ require('domready')(function() {
     var x = mouse[0] - (ctx.canvas.width / 2)  + plate[0]/2 * scale;
     var y = mouse[1] - (ctx.canvas.height / 2) + plate[1]/2 * scale;
 
-
+    var hovering;
     // hit tracking for objects in the scene
     if (pack) {
       var l = pack.length;
@@ -393,11 +394,14 @@ require('domready')(function() {
             y >= p.y*scale && y <= p.y*scale + p.height * scale)
         {
           p.state.hover = true;
+          hovering = p;
         }
       }
 
       ctx.dirty();
     }
+
+    return hovering;
   }
 
   document.addEventListener('mousemove', trackHover);
@@ -419,6 +423,16 @@ require('domready')(function() {
   document.addEventListener('mousedown', function(e) {
 
     if (e.target.tagName.toLowerCase() !== 'input') {
+      var o = trackHover();
+      if (o) {
+        toggle([editorEl, overlayEl], true);
+      }
+
+      if (e.target === overlayEl) {
+        toggle(document.querySelectorAll('.ui'), false);
+        toggle(overlayEl, false);
+      }
+
       e.preventDefault();
     }
   }, true)
