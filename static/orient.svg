@@ -1,0 +1,13 @@
+<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 60 60">
+  <g transform="translate(0, 5)">
+    <rect x="22.5" y="15" width="15" height="16" stroke="#aaa" stroke-width="2" fill="none" />
+    <g transform="translate(0, 5)">
+      <path d = "M 15 30 a 15 5 0 0 0 30 0" stroke-width="2" stroke="orange" fill="none" />
+
+
+      <g transform="translate(12.5, 29) rotate(-145) scale(0.85, 0.85)">
+        <path d="M 0 0 L -8 -4 L -4 0 L -8 4 L 0 0" fill="orange" stroke="orange" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
+      </g>
+    </g>
+  </g>
+</svg>
