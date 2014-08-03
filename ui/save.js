@@ -51,7 +51,7 @@ function saveToDisk(pack) {
 
   saveAs(
     new Blob([stl.fromObject(o, true)], { type : 'application/octet-stream' }),
-    fields.filename()
+    fields.filename().replace(/\.stl/g, '') + '.stl'
   );
 
   close();
