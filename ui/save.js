@@ -16,6 +16,10 @@ function initialize(el) {
   fields = tincture(el);
 }
 
+function close() {
+  toggle(qel('.modal,#overlay', null, true), false);
+}
+
 function saveToDisk(pack) {
   var o = {
     description: fields.filename(),
@@ -50,7 +54,7 @@ function saveToDisk(pack) {
     fields.filename()
   );
 
-  toggle(qel('.modal,#overlay', null, true), false);
+  close();
 }
 
 
@@ -58,5 +62,10 @@ module.exports = function saveModal(el, pack) {
   if (!fields) {
     initialize(el);
   }
-  currentPack = pack;
+
+  if (!pack || !pack.length) {
+    close();
+  } else {
+    currentPack = pack;
+  }
 };
