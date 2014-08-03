@@ -13,6 +13,12 @@ function initialize(el) {
     saveToDisk(currentPack);
   }, true);
 
+  qel('input[name=filename]', el).addEventListener('keydown', function(e) {
+    if (e.keyCode === 13) {
+      saveToDisk(currentPack);
+    }
+  });
+
   fields = tincture(el);
 }
 
