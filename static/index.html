@@ -116,6 +116,56 @@
       border-radius: 3px;
     }
 
+      .ui input {
+        background: #222;
+      }
+
+      .ui h1 {
+        color: orange;
+        border-bottom: 1px solid orange;
+        padding-left: 1em;
+        padding-bottom: .75em;
+      }
+
+      .ui .button {
+        padding: .25em;
+        border:1px solid;
+        border-radius: 5px;
+        text-decoration: none;
+      }
+
+      .ui .button.save {
+        border-color: #007911;
+        background-color: #00630E;
+        color: #ccc;
+      }
+      .ui .button.cancel {
+        border-color: #970100;
+        background: rgba(142, 1, 0, .75);
+        color: #ccc;
+      }
+        .ui .button.cancel:hover {
+          background: rgba(142, 1, 0, .85);
+        }
+
+      .ui .close {
+        position:absolute;
+        right: -15;
+        top: -15;
+        text-decoration: none;
+        border: 1px solid #333;
+        border-radius: 10;
+        padding: 5 10;
+        color: #790400;
+        background: rgb(20, 20, 20);
+      }
+
+        .ui .close:hover {
+          background: #790400;
+          color: red;
+        }
+
+
     #progress {
       display: none;
 
@@ -155,22 +205,6 @@
 
       }
 
-        #editor .close {
-          position:absolute;
-          right: -15;
-          top: -15;
-          text-decoration: none;
-          border: 1px solid #333;
-          border-radius: 10;
-          padding: 5 10;
-          color: #790400;
-          background: rgb(20, 20, 20);
-        }
-
-          #editor .close:hover {
-            background: #790400;
-            color: red;
-          }
 
         #editor .wrapper3 {
           border: 1px solid #333;
@@ -210,6 +244,59 @@
 
           }
 
+      #save {
+        display:none;
+        width: 500px;
+        margin-top: -100px;
+        margin-left: -250px;
+        left: 50%;
+        top: 50%;
+        padding-bottom: 3em;
+      }
+        #save section {
+          margin-top: 5em;
+          padding: 1em;
+          padding: .5em;
+          border: 1px solid #000;
+          border-radius: 2em;
+        }
+
+        #save ul {
+          list-style: none;
+          padding: 0;
+        }
+
+        #save li {
+          margin-left: 3.5%;
+          float: left;
+          display: block;
+          width: 45%;
+        }
+
+        #save li a {
+          display: block;
+          height: 2em;
+          line-height: 2em;
+          padding-left: 1em;
+          border: 1px solid #f0f;
+        }
+
+        #save li a:hover {
+          background: red;
+        }
+
+        #save input {
+          width: 50%;
+          border: 1px solid rgba(255, 255, 255, .1);
+          text-align: left;
+        }
+
+        #save .controls {
+          position: absolute;
+          right: 1em;
+          bottom:1.25em;
+        }
+
   </style>
 
 </head>
@@ -223,17 +310,19 @@
     </svg>
   </a>
 
-  <section id="width"><input type="text" data-type="float" name="width" value="200" />mm</section>
-  <section id="height"><input type="text" data-type="float" name="height" value="100" />mm</section>
+  <section id="printbed-size">
+    <section id="width"><input type="text" data-type="float" name="width" value="200" />mm</section>
+    <section id="height"><input type="text" data-type="float" name="height" value="100" />mm</section>
+  </section>
 
   <section id="overlay"></section>
 
-  <section id="progress" class="ui">
+  <section id="progress" class="ui modal">
     <canvas class="bar"></canvas>
     <div class="text">0 / 0</div>
   </section>
 
-  <section id="editor" class="ui">
+  <section id="editor" class="ui modal">
     <a href="#" class="close">X</a>
 
     <section class="wrapper3"></section>
@@ -244,6 +333,34 @@
         <li>scale</li>
       </ul>
     </section>
+  </section>
+
+  <section id="save" class="ui modal">
+    <a href="#" class="close">X</a>
+
+    <h1>Save</h1>
+    <ul>
+      <li><a href="#" rel=".save-to-disk" alt="Save to disk">disk</a></li>
+      <li><a href="#" rel=".send-to-octoprint" alt="Send to octoprint">octoprint</a></li>
+    </ul>
+    <section class="tab-content save-to-disk">
+
+      filename: <input type="text" name="filename" data-type="string" value="plater.stl" />
+    </section>
+
+    <section class="tab-content send-to-octoprint">
+      <p>
+        url: <input type="text" data-type="string" name="url" />
+      </p>
+      <p>
+        api key: <input type="text" data-type="string" name="api-key" />
+      </p>
+    </section>
+
+    <div class="controls">
+      <a href="#" class="cancel button">cancel</a>
+      <a href="#" class="save button">save</a>
+    </div>
   </section>
 </body>
 </html>

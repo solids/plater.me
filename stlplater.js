@@ -6,6 +6,8 @@ var createDropTarget = require('drop-stl-to-json');
 var createEditor = require('./ui/editor.js');
 var qel = require('./ui/qel');
 var hsl = require('./ui/hsl');
+var toggle = require('./ui/toggle');
+var saveModal = require('./ui/save');
 
 var dropDone = 0, dropPending = 0;
 
@@ -21,20 +23,6 @@ function dist(x, y) {
   return Math.sqrt(x*x + y*y);
 };
 
-function toggle(el, b) {
-  if (el) {
-    var s = (!b) ? 'none' : 'block';
-    if (typeof el.length === 'undefined') {
-      el.style.display = s;
-    } else {
-      for (var i=0; i<el.length; i++) {
-        el[i].style.display = s;
-      }
-    }
-  }
-};
-
-
 var plate = window.plate = [200, 100];
 var scale = 2;
 var translate = [0, 0];
@@ -47,6 +35,7 @@ require('domready')(function() {
   var overlayEl = qel('#overlay');
   var progressEl = qel('#progress');
   var editorEl = qel('#editor');
+  var saveEl = qel('#save');
 
   // setup webgl view for later
   var editor = createEditor(qel('#editor .wrapper3'));
@@ -211,7 +200,7 @@ require('domready')(function() {
     }
   };
 
-  var inputs = tincture(document.body);
+  var inputs = tincture(qel('#printbed-size'));
   inputs.width.change(function widthChangeHandler(val) {
     plate[0] = val;
     ctx.dirty();
@@ -350,45 +339,16 @@ require('domready')(function() {
 
 
   // add support for meta/alt + s
-  var saveAs = require('browser-filesaver');
-  var push = Array.prototype.push
   document.addEventListener('keydown', function keydownHandler(e) {
     if (e.keyCode === 83 && (e.metaKey || e.ctrlKey || e.altKey)) {
       e.preventDefault();
       e.stopImmediatePropagation();
+      toggle([overlayEl, saveEl], true);
+      saveModal(saveEl, pack);
+    }
 
-      var o = {
-        description: 'stlplater',
-        facets: []
-      };
-
-      for (var i = 0; i<pack.length; i++) {
-
-        if (typeof pack[i].x !== 'undefined') {
-
-          var ox = pack[i].x;
-          var oy = pack[i].y;
-
-          for (var j = 0; j<pack[i].facets.length; j++) {
-            var verts = pack[i].facets[j].map(function(vert) {
-              return [
-                vert[0] - pack[i].rect[0][0] + ox,
-                vert[1] - pack[i].rect[0][1] + oy,
-                vert[2]
-              ];
-            });
-
-            o.facets.push({
-              verts: verts
-            });
-          }
-        }
-      }
-
-      saveAs(
-        new Blob([stl.fromObject(o, true)], { type : 'application/octet-stream' }),
-        'stlplater.stl' // TODO: allow naming of this file
-      );
+    if (e.keyCode === 27) {
+      toggle(document.querySelectorAll('.modal,#overlay'), false);
     }
   }, true);
 
@@ -450,13 +410,13 @@ require('domready')(function() {
         toggle([editorEl, overlayEl], true);
         editor.display(o);
       }
-
-      if (e.target === overlayEl) {
-        toggle(document.querySelectorAll('.ui'), false);
-        toggle(overlayEl, false);
-      }
-
       e.preventDefault();
     }
+
+    if (e.target === overlayEl) {
+      toggle(document.querySelectorAll('.ui'), false);
+      toggle(overlayEl, false);
+    }
+
   }, true)
 });
