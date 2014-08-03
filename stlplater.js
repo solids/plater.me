@@ -98,18 +98,27 @@ require('domready')(function() {
       ctx.lineWidth = 1/scale;
       ctx.strokeStyle = "yellow";
       ctx.beginPath()
-        ctx.moveTo(-plate[0]/2 - 1, -plate[1]/2 - 1);
-        ctx.lineTo( plate[0]/2 + 1, -plate[1]/2 - 1);
-        ctx.moveTo(-plate[0]/2 - 1,  plate[1]/2 + 1);
-        ctx.lineTo( plate[0]/2 + 1,  plate[1]/2 + 1);
+        ctx.moveTo(-plate[0]/2 + 1, -plate[1]/2 - 2);
+
+        ctx.lineTo(-plate[0]/2 + 1, -plate[1]/2 - 10);
+        ctx.lineTo( plate[0]/2 - 1, -plate[1]/2 - 10 );
+        ctx.lineTo( plate[0]/2 - 1, -plate[1]/2 - 2);
+
+
+        ctx.moveTo(0, -plate[1]/2 - 10);
+        ctx.lineTo(0, -ctx.canvas.height/scale);
         ctx.stroke();
 
       ctx.strokeStyle = "orange";
       ctx.beginPath()
-        ctx.moveTo(-plate[0]/2 - 1, -plate[1]/2 - 1);
-        ctx.lineTo(-plate[0]/2 - 1,  plate[1]/2 + 1);
-        ctx.moveTo( plate[0]/2 + 1, -plate[1]/2 - 1);
-        ctx.lineTo( plate[0]/2 + 1,  plate[1]/2 + 1);
+        ctx.moveTo(-plate[0]/2 - 2, -plate[1]/2);
+        ctx.lineTo(-plate[0]/2 - 10, -plate[1]/2);
+
+        ctx.lineTo(-plate[0]/2 - 10,  plate[1]/2);
+        ctx.lineTo(-plate[0]/2 - 2,  plate[1]/2);
+
+        ctx.moveTo(-plate[0]/2 - 10, 0);
+        ctx.lineTo(-ctx.canvas.width/scale, 0);
         ctx.stroke();
     ctx.restore();
 
