@@ -204,12 +204,14 @@ require('domready')(function() {
   inputs.width.change(function widthChangeHandler(val) {
     plate[0] = val;
     ctx.dirty();
+    lastPackSize = 0; // force a repack
     localStorage.plate = plate;
   });
 
   inputs.height.change(function heightChangeHandler(val) {
     plate[1] = val;
     ctx.dirty();
+    lastPackSize = 0; // force a repack
     localStorage.plate = plate;
   });
 
@@ -233,7 +235,10 @@ require('domready')(function() {
   });
 
   drop.on('stream', function dropStreamHandler(s) {
-    var rect = [[Infinity, Infinity], [-Infinity, -Infinity]];
+    var rect = [
+      [Infinity, Infinity, Infinity],
+      [-Infinity, -Infinity, -Infinity]
+    ];
     var result = {
       width: 0,
       height: 0,

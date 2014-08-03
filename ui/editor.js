@@ -42,9 +42,15 @@ Editor.prototype.display = function(object, color) {
   that.object = object;
 
   if (!this.shell) {
+    var color = 0x11 / 255;
     var shell = this.shell = glnow({
       element: this.el,
-      clearColor : [0,0,0,1]
+      clearColor : [
+        color,
+        color,
+        color,
+        1
+      ]
     });
     shell.element = this.el;
 
