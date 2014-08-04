@@ -90,37 +90,37 @@ require('domready')(function() {
 
       ctx.scale(scale, scale);
 
+      var p0 = round(plate[0]/2);
+      var p1 = round(plate[1]/2);
+
       ctx.fillStyle = '#16368A';
-      ctx.fillRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
+      ctx.fillRect(-p0, -p1, plate[0], plate[1]);
 
       var pattern = ctx.createPattern(tapeBackground, 'repeat');
       ctx.fillStyle = pattern;
-      ctx.fillRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
+      ctx.fillRect(-p0, -p1, plate[0], plate[1]);
 
       ctx.lineWidth = 1/scale;
       ctx.strokeStyle = '#2246E2';
-      ctx.strokeRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
+      ctx.strokeRect(-p0, -p1, plate[0], plate[1]);
 
 
       ctx.strokeStyle = "yellow";
 
       var rulerWidth = 40;
 
-      var p0 = round(plate[0]/2);
-      var p1 = round(plate[1]/2);
-
       ctx.beginPath()
-        ctx.moveTo(-p0 + 1, -p1 - 2);
+        ctx.moveTo(-p0, -p1 - 2);
 
-        ctx.lineTo(-p0 + 1, -p1 - rulerWidth);
-        ctx.lineTo( p0 - 1, -p1 - rulerWidth );
-        ctx.lineTo( p0 - 1, -p1 - 2);
+        ctx.lineTo(-p0, -p1 - rulerWidth);
+        ctx.lineTo( p0, -p1 - rulerWidth);
+        ctx.lineTo( p0, -p1 - 2);
 
         ctx.moveTo(0, -p1 - rulerWidth);
         ctx.lineTo(0, -ctx.canvas.height/scale);
         ctx.stroke();
 
-        drawRuler(ctx, p0, p1, rulerWidth);
+        drawRuler(ctx, p0 + 1, p1, rulerWidth);
 
       ctx.strokeStyle = "orange";
       ctx.beginPath()

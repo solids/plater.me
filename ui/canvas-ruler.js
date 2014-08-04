@@ -3,7 +3,7 @@ module.exports = function drawRuler(ctx, p0, p1, rulerWidth, reverse) {
   // var end = (reverse) ? -p0+3 : p0-3;
   // var dir =
 
-  for (var i = -p0+3, d = 1; i<p0-2; i+=2, d++) {
+  for (var i = -p0+3, d = 1; i<=p0-3; i+=2, d++) {
     ctx.moveTo(i, -p1 - rulerWidth + 1);
 
     var h = rulerWidth*.75;
