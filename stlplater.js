@@ -268,6 +268,7 @@ require('domready')(function() {
 
   drop.on('dropped', function dropHandler(a) {
     dropPending+=a.length;
+    toggle(qel('.modal', null, true), false);
     toggle([progressEl, overlayEl], true);
     updateProgress(progressEl, dropDone, dropPending);
   });
@@ -306,8 +307,6 @@ require('domready')(function() {
           d.normal = stl.facetNormal(d);
         }
 
-
-        result.normals.push(d.normal);
         result.facets.push(verts);
 
         for (var i=0; i<verts.length; i++) {
@@ -318,6 +317,11 @@ require('domready')(function() {
           result.verts.push(x);
           result.verts.push(y);
           result.verts.push(z);
+
+          result.normals.push(d.normal[0]);
+          result.normals.push(d.normal[1]);
+          result.normals.push(d.normal[2]);
+
 
           rect[0][0] = min(rect[0][0], x);
           rect[0][1] = min(rect[0][1], y);
@@ -398,8 +402,8 @@ require('domready')(function() {
   function trackHover(e) {
 
     if (e) {
-      mouse[0] = e.x;
-      mouse[1] = e.y;
+      mouse[0] = e.clientX;
+      mouse[1] = e.clientY;
     }
 
     if (!e || e.target === ctx.canvas) {

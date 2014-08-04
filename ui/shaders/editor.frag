@@ -10,26 +10,25 @@ varying vec3 vNormal;
 
 void main() {
 
-  vec3 sky = vec3(1.0, 1.0, 0.9);
-  vec3 gnd = vec3(0.1, 0.1, 0.35);
+  vec3 sky = vec3(.3, 0.3, .3);
+  vec3 gnd = vec3(0.2, 0.2, 0.2);
 
-  vec3 direction = vec3(0.0, 1.0, 0.0);
+  vec3 direction = vec3(0.0, 100.0, 100.0);
 
   vec3 lighting = hemisphere(
       vNormal
     , sky
     , gnd
-    , direction
+    , eye + direction
     , model
     , view
     , eye
 
-    , 20.0
-    , 0.2
+    , 0.1
+    , 0.5
   );
+
 
   gl_FragColor = vec4(lighting, 1.0);
 
-
-  // gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
 }
