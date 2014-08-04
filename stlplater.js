@@ -98,6 +98,10 @@ require('domready')(function() {
       ctx.fillRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
 
       ctx.lineWidth = 1/scale;
+      ctx.strokeStyle = '#2246E2';
+      ctx.strokeRect(-plate[0]/2, -plate[1]/2, plate[0], plate[1]);
+
+
       ctx.strokeStyle = "yellow";
 
       var rulerWidth = 40;
