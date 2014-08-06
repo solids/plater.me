@@ -9,6 +9,8 @@ var mat4 = glm.mat4;
 var orbitCamera = require('orbit-camera');
 var eye = require('eye-vector');
 
+var Plane = require('./editor/plane');
+
 var scratch = glm.mat4.create();
 
 var max = Math.max;
@@ -23,14 +25,16 @@ var createShader = glslify({
 
 module.exports = Editor;
 
-function Editor(el) {
+function Editor(el, tapeBackground) {
   if (!(this instanceof Editor)) {
-    return new Editor(el);
+    return new Editor(el, tapeBackground);
   }
   this.el = el;
-
+  this.tapeBackground = tapeBackground;
   this.eyevec = vec3.create();
   window.editor = this;
+  this.params = [.1, .005, 0];
+
 };
 
 Editor.prototype.shell = null;
@@ -54,6 +58,7 @@ Editor.prototype.setupBuffers = function(gl, obj) {
   if (this.shell.gl.buffer) {
     this.shell.gl.buffer.dispose();
     this.shell.gl.normals.dispose();
+    this.shell.gl.planeBuffer.dispose();
   }
 
   this.shell.gl.buffer = createBuffer(this.shell.gl, obj.buffer);
@@ -65,6 +70,8 @@ Editor.prototype.setupBuffers = function(gl, obj) {
     r[1][1] - r[0][1],
     r[1][2] - r[0][2]
   ];
+
+  var z = r[0][2] - 10;
 
   this.center = [
     d[0]/2 + r[0][0],
@@ -104,6 +111,7 @@ Editor.prototype.display = function(object, color) {
     shell.element = this.el;
 
     var camera = that.camera = orbitCamera();
+    var plane = null;
 
     shell.on("gl-init", function() {
       var gl = shell.gl
@@ -113,10 +121,14 @@ Editor.prototype.display = function(object, color) {
       gl.program.bind();
       gl.program.attributes.position.location = 0;
       gl.program.attributes.aNormal.location = 1
+
+      plane = new Plane(gl, that.tapeBackground);
     });
 
     var last = 0;
     shell.on("gl-render", function(t) {
+
+      plane.updateObject(that.object);
 
       var gl = shell.gl
 
@@ -142,8 +154,28 @@ Editor.prototype.display = function(object, color) {
       shader.uniforms.view = camera.view(scratch)
 
       shader.uniforms.eye = that.eyevec;
+      shader.uniforms.params = that.params;
+      shader.attributes.color = that.object.state.color;
 
       gl.drawArrays(gl.TRIANGLES, 0, that.object.verts.length/3);
+
+
+      plane.render(function(shader) {
+        shader.attributes.position.pointer();
+
+        shader.uniforms.model = mat4.identity(scratch);
+
+        shader.uniforms.projection = that.projection;
+
+        eye(camera.view(), that.eyevec);
+
+        camera.rotate([t*.1, 0], [t*.1 - .0025, 0]);
+
+        shader.uniforms.view = camera.view(scratch)
+
+        shader.uniforms.eye = that.eyevec;
+        shader.uniforms.params = that.params;
+      });
     });
 
     shell.on("gl-error", function(e) {
