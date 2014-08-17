@@ -44,6 +44,8 @@ require('domready')(function() {
   var progressEl = qel('#progress');
   var editorEl = qel('#editor');
   var saveEl = qel('#save');
+  var saveButton = qel('#save-button');
+
 
   // setup webgl view for later
   var editor = createEditor(qel('#editor .wrapper3'), tapeBackground);
@@ -57,6 +59,7 @@ require('domready')(function() {
     totalTriangles = 0;
 
     if (bounds.length && bounds.length !== lastPackSize) {
+      saveButton.style.display = "block";
       var box = boxpack({
         width: plate[0],
         height: plate[1]
@@ -387,13 +390,20 @@ require('domready')(function() {
   });
 
 
+  function openSaveModal(e) {
+    e && e.preventDefault();
+    e && e.stopImmediatePropagation();
+    toggle([overlayEl, saveEl], true);
+    saveModal(saveEl, pack);
+  }
+
+  saveButton.addEventListener('click', openSaveModal);
+
+
   // add support for meta/alt + s
   document.addEventListener('keydown', function keydownHandler(e) {
     if (e.keyCode === 83 && (e.metaKey || e.ctrlKey || e.altKey)) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      toggle([overlayEl, saveEl], true);
-      saveModal(saveEl, pack);
+      openSaveModal(e);
     }
 
     if (e.keyCode === 27) {
