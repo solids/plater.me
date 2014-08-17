@@ -300,6 +300,68 @@
           bottom:1.25em;
         }
 
+    .button {
+      cursor: pointer;
+      background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #b8e356), color-stop(1, #a5cc52) );
+      background:-moz-linear-gradient( center top, #b8e356 5%, #a5cc52 100% );
+      filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#b8e356', endColorstr='#a5cc52');
+      background-color:#b8e356;
+      -webkit-border-top-left-radius:20px;
+      -moz-border-radius-topleft:20px;
+      border-top-left-radius:20px;
+      -webkit-border-top-right-radius:20px;
+      -moz-border-radius-topright:20px;
+      border-top-right-radius:20px;
+      -webkit-border-bottom-right-radius:20px;
+      -moz-border-radius-bottomright:20px;
+      border-bottom-right-radius:20px;
+      -webkit-border-bottom-left-radius:20px;
+      -moz-border-radius-bottomleft:20px;
+      border-bottom-left-radius:20px;
+      text-indent:1.4em;
+      /*border:1px solid #83c41a;*/
+      display:inline-block;
+      color:#000;
+      font-size:1em;
+      font-weight:bold;
+      font-style:normal;
+      height:36px;
+      line-height:36px;
+      width:6em;
+      text-decoration:none;
+      text-align:center;
+      background-image: url('save.svg');
+      background-repeat: no-repeat;
+      background-position: .2em -.1em;
+
+    }
+
+    .button:hover {
+      background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #a5cc52), color-stop(1, #b8e356) );
+      background:-moz-linear-gradient( center top, #a5cc52 5%, #b8e356 100% );
+      filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#a5cc52', endColorstr='#b8e356');
+      background-color:#a5cc52;
+      background-image: url('save.svg');
+      background-repeat: no-repeat;
+      background-position: .2em -.1em;
+      text-shadow:1px 1px 0px #86ae47;
+
+
+    }
+
+    .button:active {
+      position:relative;
+      top:1px;
+    }
+
+    #save-button {
+      position:absolute;
+      right: 1em;
+      bottom: 1em;
+      z-index: 2;
+
+    }
+
   </style>
 
 </head>
@@ -365,6 +427,10 @@
       <a href="#" class="cancel button">cancel</a>
       <a href="#" class="save button">save</a>
     </div>
+  </section>
+
+  <section id="save-button">
+    <a class="button">save</a>
   </section>
 </body>
 </html>
