@@ -1,6 +1,6 @@
 var stl = require('stl');
 var tincture = require('tincture');
-var qel = require('./qel');
+var qel = require('qel');
 var saveAs = require('browser-filesaver');
 var toggle = require('./toggle');
 

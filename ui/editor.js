@@ -1,4 +1,4 @@
-var qel = require('./qel');
+var qel = require('qel');
 var glnow = require('gl-now');
 var glslify = require('glslify');
 var createBuffer = require('gl-buffer');

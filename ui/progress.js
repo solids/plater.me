@@ -1,4 +1,4 @@
-var qel = require('./qel');
+var qel = require('qel');
 var hsl = require('./hsl');
 var TAU = Math.PI*2;
 

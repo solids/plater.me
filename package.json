@@ -25,6 +25,7 @@
     "glslify": "^1.6.0",
     "onecolor": "^2.4.1",
     "orbit-camera": "^1.0.0",
+    "qel": "^1.0.0",
     "quick-hull-2d": "0.0.0",
     "robust-orientation": "^1.1.3",
     "stl": "^1.1.0",
