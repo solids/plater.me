@@ -308,9 +308,7 @@ require('domready')(function() {
       if (d.verts) {
         var verts = d.verts;
 
-        if (!d.normal) {
-          d.normal = stl.facetNormal(d);
-        }
+        var normal = stl.facetNormal(d);
 
         result.facets.push(verts);
 
@@ -323,10 +321,11 @@ require('domready')(function() {
           result.verts.push(y);
           result.verts.push(z);
 
-          result.normals.push(d.normal[0]);
-          result.normals.push(d.normal[1]);
-          result.normals.push(d.normal[2]);
-
+          for (var j=0; j<3; j++) {
+            result.normals.push(normal[0]);
+            result.normals.push(normal[1]);
+            result.normals.push(normal[2]);
+          }
 
           rect[0][0] = min(rect[0][0], x);
           rect[0][1] = min(rect[0][1], y);

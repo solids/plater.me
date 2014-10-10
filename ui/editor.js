@@ -8,6 +8,7 @@ var mat3 = glm.mat3;
 var mat4 = glm.mat4;
 var orbitCamera = require('orbit-camera');
 var eye = require('eye-vector');
+var createVAO = require('gl-vao');
 
 var Plane = require('./editor/plane');
 
@@ -55,14 +56,20 @@ Editor.prototype.setupBuffers = function(gl, obj) {
     1000.0
   );
 
-  if (this.shell.gl.buffer) {
-    this.shell.gl.buffer.dispose();
-    this.shell.gl.normals.dispose();
-    this.shell.gl.planeBuffer.dispose();
-  }
+  this.positions = createBuffer(this.shell.gl, obj.buffer);
+  this.normals = createBuffer(this.shell.gl, obj.normals);
 
-  this.shell.gl.buffer = createBuffer(this.shell.gl, obj.buffer);
-  this.shell.gl.normals = createBuffer(this.shell.gl, obj.normals);
+  var attributes = [{
+    buffer: this.positions,
+    size: 3
+  },{
+    buffer: this.normals,
+    size: 3
+  }];
+
+  this.vao = createVAO(gl, attributes);
+
+
 
   var r = obj.rect;
   var d = [
@@ -119,8 +126,8 @@ Editor.prototype.display = function(object, color) {
       that.setupBuffers(shell.gl, object);
       gl.program = createShader(gl);
       gl.program.bind();
-      gl.program.attributes.position.location = 0;
-      gl.program.attributes.aNormal.location = 1
+      // gl.program.attributes.position.location = 0;
+      // gl.program.attributes.normal.location = 1
 
       plane = new Plane(gl, that.tapeBackground);
     });
@@ -138,27 +145,18 @@ Editor.prototype.display = function(object, color) {
       var shader = gl.program;
 
       shader.bind();
-      gl.buffer.bind();
-
-      shader.attributes.position.pointer();
-      shader.attributes.aNormal.pointer();
-
       shader.uniforms.model = mat4.identity(scratch);
-
       shader.uniforms.projection = that.projection;
-
       eye(camera.view(), that.eyevec);
-
       camera.rotate([t*.1, 0], [t*.1 - .005, 0]);
-
       shader.uniforms.view = camera.view(scratch)
-
       shader.uniforms.eye = that.eyevec;
       shader.uniforms.params = that.params;
       shader.attributes.color = that.object.state.color;
 
-      gl.drawArrays(gl.TRIANGLES, 0, that.object.verts.length/3);
-
+      that.vao.bind();
+      that.vao.draw(gl.TRIANGLES, that.object.verts.length/3);
+      that.vao.unbind();
 
       plane.render(function(shader) {
         shader.attributes.position.pointer();

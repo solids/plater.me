@@ -18,7 +18,7 @@ function Plane(gl, img) {
   this.program = createShader(gl);
   gl.program.bind();
   gl.program.attributes.position.location = 0;
-  gl.program.attributes.aNormal.location = 1
+  gl.program.attributes.normal.location = 1
 
 
   this.planeBuffer = createBuffer(gl, this.planeArray);
