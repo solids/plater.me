@@ -126,8 +126,6 @@ Editor.prototype.display = function(object, color) {
       that.setupBuffers(shell.gl, object);
       gl.program = createShader(gl);
       gl.program.bind();
-      // gl.program.attributes.position.location = 0;
-      // gl.program.attributes.normal.location = 1
 
       plane = new Plane(gl, that.tapeBackground);
     });
