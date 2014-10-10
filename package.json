@@ -21,6 +21,7 @@
     "gl-now": "^1.3.1",
     "gl-shader-core": "^2.1.1",
     "gl-texture2d": "^2.0.0",
+    "gl-vao": "^1.2.0",
     "glsl-hemisphere-light": "0.0.0",
     "glslify": "^1.6.0",
     "onecolor": "^2.4.1",
