@@ -7,8 +7,8 @@ drag and drop stls to be plated for 3d printing
 # install
 
 ```
-git clone git://github.com/tmpvar/stlplater.git
-cd stlplater
+git clone git://github.com/solids/plater.me.git
+cd plater.me
 npm install
 ```
 
